@@ -5,5 +5,5 @@ namespace App\Interfaces;
 interface ExchangeRateRepositoryInterface
 {
     public function index();
-    public function update();
+    public function update(array $data);
 }

@@ -16,10 +16,11 @@ class ExchangeRateResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'currency_id' => $this->currency_id,
-            'currency' => new CurrencyResource($this->whenLoaded('currency')),
-            'ask' => $this->ask,
-            'bid' => $this->bid,
+            'from_currency_id' => $this->from_currency_id,
+            'from_currency' => new CurrencyResource($this->whenLoaded('from_currency')),
+            'to_currency_id' => $this->to_currency_id,
+            'to_currency' => new CurrencyResource($this->whenLoaded('to_currency')),
+            'rate' => $this->rate,
             'created_at' => $this->created_at ? $this->created_at->format('d.m.Y, H:i') : null,
             'updated_at' => $this->updated_at ? $this->updated_at->format('d.m.Y, H:i') : null,
         ];

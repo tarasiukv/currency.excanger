@@ -1,7 +1,9 @@
 <?php
 
-use App\Http\Controllers\ExchangeRateController;
-use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\Api\ExchangeRateController;
+use App\Http\Controllers\Api\MinFinExchangeRateController;
+use App\Http\Controllers\Api\TestDataController;
+use App\Http\Controllers\Api\TransactionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -9,8 +11,9 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::get('/exchange-rates', [ExchangeRateController::class, 'index']);
+Route::get('/exchange-rates', [MinFinExchangeRateController::class, 'index']);
 Route::post('/exchange-rates/update', [ExchangeRateController::class, 'update']);
+Route::get('/exchange-rates/fetch', [ExchangeRateController::class, 'fetch']);
 
 
 Route::middleware('auth')->group(function () {
@@ -24,3 +27,5 @@ Route::middleware('auth')->group(function () {
         Route::get('/my-transactions', [TransactionController::class, 'index']);
     });
 });
+
+Route::get('/test', [TestDataController::class, 'index']);
