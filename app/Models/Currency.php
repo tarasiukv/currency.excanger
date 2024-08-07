@@ -17,9 +17,14 @@ class Currency extends Model
         'name_plural',
     ];
 
-    public function exchangeRates()
+    public function exchangeRatesFrom()
     {
-        return $this->hasMany(ExchangeRate::class, 'currency_id');
+        return $this->hasMany(ExchangeRate::class, 'from_currency_id');
+    }
+
+    public function exchangeRatesTo()
+    {
+        return $this->hasMany(ExchangeRate::class, 'to_currency_id');
     }
 
     public function transactionsFrom()

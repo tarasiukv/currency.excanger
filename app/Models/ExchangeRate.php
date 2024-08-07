@@ -10,13 +10,18 @@ class ExchangeRate extends Model
     use HasFactory;
 
     protected $fillable = [
-        'currency_id',
-        'ask',
-        'bid',
+        'from_currency_id',
+        'to_currency_id',
+        'rate',
     ];
 
-    public function currency()
+    public function fromCurrency()
     {
-        return $this->belongsTo(Currency::class);
+        return $this->belongsTo(Currency::class, 'from_currency_id');
+    }
+
+    public function toCurrency()
+    {
+        return $this->belongsTo(Currency::class, 'to_currency_id');
     }
 }
