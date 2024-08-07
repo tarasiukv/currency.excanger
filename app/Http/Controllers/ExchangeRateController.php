@@ -27,6 +27,7 @@ class ExchangeRateController extends Controller
 
     public function update(Request $request, ExchangeRate $exchange_rate)
     {
+        //TODO: Завершити метод
         $model = $this->exchangeRateRepository->update();
         return ExchangeRateResource::collection($model);
     }
