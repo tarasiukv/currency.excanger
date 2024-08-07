@@ -5,9 +5,7 @@ namespace App\Repositories;
 use App\Http\Resources\ExchangeRateResource;
 use App\Interfaces\ExchangeRateRepositoryInterface;
 use App\Models\ExchangeRate;
-use App\Services\ExchangeRateService;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
 use PharIo\Version\Exception;
 use Symfony\Component\HttpFoundation\Response;
 
