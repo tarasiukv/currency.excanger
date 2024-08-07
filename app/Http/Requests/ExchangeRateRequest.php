@@ -22,7 +22,9 @@ class ExchangeRateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'rate' => 'required|numeric',
+            'from_currency_id' => 'required|exists:currencies,id',
+            'to_currency_id' => 'required|exists:currencies,id',
         ];
     }
 }

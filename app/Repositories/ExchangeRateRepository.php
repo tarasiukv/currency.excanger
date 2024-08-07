@@ -11,51 +11,26 @@ use PharIo\Version\Exception;
 
 class ExchangeRateRepository implements ExchangeRateRepositoryInterface
 {
-    protected $exchangeRateService;
-
-    public function __construct(ExchangeRateService $exchangeRateService)
-    {
-        $this->exchangeRateService = $exchangeRateService;
-    }
-
     public function index()
     {
         return ExchangeRate::with('currency')->get();
     }
 
-    public function update()
+    public function update(array $data)
     {
-        $apiKey = $this->exchangeRateService->getApiKey();
+        try {
+            DB::beginTransaction();
+            $exchange_rate = ExchangeRate::updateOrCreate([
+                'from_currency_id' => $data['from_currency_id'],
+                'to_currency_id' => $data['to_currency_id'],
+                'rate' => $data['rate'],
+            ]);
 
-        $url = "https://api.minfin.com.ua/nbu/{$apiKey}/";
+            $exchange_rate->save();
+            DB::commit();
 
-        $response = Http::get($url);
-        $data = $response->json();
-
-        foreach ($data as $code => $rateData) {
-            $currency = $this->exchangeRateService->findByCode($code);
-
-            if ($currency) {
-                try {
-                    DB::beginTransaction();
-                    $exchange_rate = ExchangeRate::updateOrCreate(
-                        ['currency_id' => $currency->id],
-                        [
-                            'ask' => $rateData['ask'],
-                            'bid' => $rateData['bid']
-                        ]
-                    );
-
-                    $exchange_rate->save();
-                    $updatedRates[] = $exchange_rate;
-                    DB::commit();
-
-                } catch (Exception $e) {
-                    DB::rollBack();
-                }
-            }
+        } catch (Exception $e) {
+            DB::rollBack();
         }
-
-        return $updatedRates;
     }
 }

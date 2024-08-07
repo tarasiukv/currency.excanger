@@ -11,16 +11,17 @@ Route::get('/user', function (Request $request) {
 
 Route::get('/exchange-rates', [ExchangeRateController::class, 'index']);
 Route::post('/exchange-rates/update', [ExchangeRateController::class, 'update']);
+Route::get('/exchange-rates/fetch', [ExchangeRateController::class, 'fetch']);
 
 
-Route::middleware('auth')->group(function () {
-    Route::post('/transactions', [TransactionController::class, 'store']);
-
-    Route::middleware('role:admin')->group(function () {
-        Route::get('/transactions', [TransactionController::class, 'index']);
-    });
-
-    Route::middleware('role:client')->group(function () {
-        Route::get('/my-transactions', [TransactionController::class, 'index']);
-    });
-});
+//Route::middleware('auth')->group(function () {
+//    Route::post('/transactions', [TransactionController::class, 'store']);
+//
+//    Route::middleware('role:admin')->group(function () {
+//        Route::get('/transactions', [TransactionController::class, 'index']);
+//    });
+//
+//    Route::middleware('role:client')->group(function () {
+//        Route::get('/my-transactions', [TransactionController::class, 'index']);
+//    });
+//});
