@@ -11,7 +11,6 @@ use GuzzleHttp\Client;
 
 class ExchangeRateService
 {
-
     private $exchangeRateRepository;
 
     public function __construct(ExchangeRateRepositoryInterface $exchangeRateRepository)
