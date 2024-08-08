@@ -11,13 +11,13 @@ class InstanceService
 {
 
     private static $instance = null;
-    private $minfin_api_ey;
-    private $erapi_api_ey;
+    private $minfin_api_url;
+    private $erapi_api_url;
 
     private function __construct()
     {
-        $this->minfin_api_ey = env('MINFIN_EXCHANGE_RATE_API_KEY');
-        $this->erapi_api_ey = env('ERAPI_EXCHANGE_RATE_API_KEY');
+        $this->minfin_api_url = env('MINFIN_EXCHANGE_RATE_API_URL');
+        $this->erapi_api_url = env('ERAPI_EXCHANGE_RATE_API_URL');
     }
 
     public static function getInstance()
@@ -29,11 +29,11 @@ class InstanceService
         return self::$instance;
     }
 
-    public function getApiKey()
+    public function getApiUrls()
     {
         return [
-            'minfin' => $this->minfin_api_ey,
-            'erapi' => $this->erapi_api_ey,
+            'minfin_api_url' => $this->minfin_api_url,
+            'erapi_api_url' => $this->erapi_api_url,
         ];
     }
 }

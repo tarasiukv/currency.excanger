@@ -2,12 +2,13 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
 use App\Http\Requests\ExchangeRateRequest;
 use App\Interfaces\ExchangeRateRepositoryInterface;
 use App\Models\Currency;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class ExchangeRateService
 {
@@ -23,22 +24,25 @@ class ExchangeRateService
         return Currency::where('code', strtoupper($code))->first();
     }
 
-    public function getApiKey()
+    public function getApiUrl()
     {
         $exchangeRateService = InstanceService::getInstance();
-        return $exchangeRateService->getApiKey();
+        return $exchangeRateService->getApiUrls();
+    }
+
+    protected function getJSONData()
+    {
+        $api_urls = $this->getApiUrl();
+
+        $client = new Client();
+        $response = $client->get($api_urls['erapi_api_url']);
+
+        return json_decode($response->getBody(), true);
     }
 
     public function getExchangeRates()
     {
-        $api_keys = $this->getApiKey();
-
-        $url = "https://v6.exchangerate-api.com/v6/{$api_keys['erapi']}/latest/USD";
-
-        $client = new Client();
-        $response = $client->get($url);
-
-        $data = json_decode($response->getBody(), true);
+        $data = $this->getJSONData();
 
         if (!isset($data['conversion_rates'])) {
             Log::channel('exchangeRate')->error('Missing conversion rates');
@@ -50,8 +54,13 @@ class ExchangeRateService
             $from_currency = $this->findByCode($currency_code);
             $to_currency = $this->findByCode($data['base_code']);
 
-            if (!isset($from_currency) && !isset($to_currency)) {
-                Log::channel('exchangeRate')->warning("Currency not found: from_currency={$currency_code}, to_currency={$data['base_code']}");
+            if (!$from_currency) {
+                Log::channel('exchangeRate')->warning("Currency not found: from_currency={$currency_code}");
+                continue;
+            }
+
+            if (!$to_currency) {
+                Log::channel('exchangeRate')->warning("Currency not found: to_currency={$data['base_code']}");
                 continue;
             }
 
@@ -62,21 +71,17 @@ class ExchangeRateService
                 'rate' => $rate_data,
             ];
 
-            $request = new ExchangeRateRequest();
-            $request->merge($currency_rate_data);
+            $validator = Validator::make($currency_rate_data, (new ExchangeRateRequest())->rules());
 
             try {
-                $request->validateResolved();
-                $this->exchangeRateRepository->update($currency_rate_data);
+                $validated_data = $validator->validate();
+                $this->exchangeRateRepository->update($validated_data);
                 Log::channel('exchangeRate')->info("Exchange rate updated: from_currency_id={$from_currency->id}, to_currency_id={$to_currency->id}, rate={$rate_data}");
 
             } catch (ValidationException $e) {
                 Log::channel('exchangeRate')->error('Validation failed', ['errors' => $e->errors()]);
                 continue;
             }
-            //clear memory
-            unset($data);
-            gc_collect_cycles();
         }
     }
 }

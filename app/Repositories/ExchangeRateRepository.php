@@ -11,6 +11,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ExchangeRateRepository implements ExchangeRateRepositoryInterface
 {
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
     public function index()
     {
         return ExchangeRate::with([
@@ -21,6 +26,9 @@ class ExchangeRateRepository implements ExchangeRateRepositoryInterface
 
     /**
      * Display the specified resource.
+     *
+     * @param ExchangeRate $exchange_rate
+     * @return ExchangeRateResource|\Illuminate\Http\JsonResponse
      */
     public function show(ExchangeRate $exchange_rate)
     {
@@ -38,15 +46,25 @@ class ExchangeRateRepository implements ExchangeRateRepositoryInterface
         return new ExchangeRateResource($exchange_rate);
     }
 
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param array $data
+     * @return void
+     */
     public function update(array $data)
     {
         try {
             DB::beginTransaction();
-            $exchange_rate = ExchangeRate::updateOrCreate([
-                'from_currency_id' => $data['from_currency_id'],
-                'to_currency_id' => $data['to_currency_id'],
-                'rate' => $data['rate'],
-            ]);
+            $exchange_rate = ExchangeRate::updateOrCreate(
+                [
+                    'from_currency_id' => $data['from_currency_id'],
+                    'to_currency_id' => $data['to_currency_id'],
+                ],
+                [
+                    'rate' => $data['rate'],
+                ]
+            );
 
             $exchange_rate->save();
             DB::commit();
@@ -58,6 +76,9 @@ class ExchangeRateRepository implements ExchangeRateRepositoryInterface
 
     /**
      * Remove the specified resource from storage.
+     *
+     * @param ExchangeRate $exchange_rate
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
      */
     public function destroy(ExchangeRate $exchange_rate)
     {
