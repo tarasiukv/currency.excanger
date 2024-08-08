@@ -19,12 +19,20 @@ class ExchangeRateController extends Controller
         $this->exchangeRateService = $exchangeRateService;
     }
 
+    /**
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function index()
     {
         $model = $this->exchangeRateRepository->index();
         return response()->json($model);
     }
 
+    /**
+     * @param Request $request
+     * @param ExchangeRate $exchange_rate
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     */
     public function update(Request $request, ExchangeRate $exchange_rate)
     {
         //TODO: Завершити метод
@@ -32,6 +40,9 @@ class ExchangeRateController extends Controller
         return ExchangeRateResource::collection($model);
     }
 
+    /**
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function fetch()
     {
         $this->exchangeRateService->getExchangeRates();
