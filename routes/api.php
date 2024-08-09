@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ExchangeRateController;
 use App\Http\Controllers\TransactionController;
 use Illuminate\Http\Request;
@@ -13,6 +14,10 @@ Route::get('/exchange-rates', [ExchangeRateController::class, 'index']);
 Route::post('/exchange-rates/update', [ExchangeRateController::class, 'update']);
 Route::get('/exchange-rates/fetch', [ExchangeRateController::class, 'fetch']);
 
+Route::group(['prefix' => 'auth'], function () {
+    Route::post('register', [AuthController::class, 'register']);
+    Route::post('login', [AuthController::class, 'login']);
+});
 
 //Route::middleware('auth')->group(function () {
 //    Route::post('/transactions', [TransactionController::class, 'store']);
