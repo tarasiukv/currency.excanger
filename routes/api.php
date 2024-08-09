@@ -15,10 +15,10 @@ Route::get('/exchange-rates/fetch', [ExchangeRateController::class, 'fetch']);
 
 
 //Route::middleware('auth')->group(function () {
-//    Route::post('/transactions', [TransactionController::class, 'store']);
+    Route::post('/transactions', [TransactionController::class, 'store']);
 //
 //    Route::middleware('role:admin')->group(function () {
-//        Route::get('/transactions', [TransactionController::class, 'index']);
+        Route::get('/transactions', [TransactionController::class, 'index']);
 //    });
 //
 //    Route::middleware('role:client')->group(function () {
