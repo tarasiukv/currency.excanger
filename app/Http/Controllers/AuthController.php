@@ -11,6 +11,12 @@ use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
+    /**
+     * Register user
+     *
+     * @param UserRegisterRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function register(UserRegisterRequest $request)
     {
         try {
@@ -38,6 +44,12 @@ class AuthController extends Controller
         }
     }
 
+    /**
+     * Update user
+     *
+     * @param UserRegisterRequest $request
+     * @return \Illuminate\Http\JsonResponse|void
+     */
     public function updateProfile(UserRegisterRequest $request)
     {
         // TODO: in progress
@@ -58,11 +70,17 @@ class AuthController extends Controller
 
             return response()->json(['message' => 'Profile updated successfully'], 200);
 
-        } catch () {
+        } catch (\Exception $e) {
 
         }
     }
 
+    /**
+     * Login user
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function login(Request $request)
     {
         $credentials = [
