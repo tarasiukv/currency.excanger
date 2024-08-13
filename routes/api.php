@@ -17,6 +17,16 @@ Route::get('/exchange-rates/fetch', [ExchangeRateController::class, 'fetch']);
 Route::group(['prefix' => 'auth'], function () {
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
+
+//    Route::group(['middleware' => 'auth:api'], function () {
+//        Route::post('logout', [AuthController::class, 'logout']);
+//        Route::post('refresh', [AuthController::class, 'logout']);
+//    });
+    Route::middleware('auth:api')->group(function () {
+        Route::post('logout', [AuthController::class, 'logout']);
+        Route::post('refresh', [AuthController::class, 'logout']);
+    });
+
 });
 
 //Route::middleware('auth')->group(function () {
