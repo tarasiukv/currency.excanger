@@ -17,8 +17,8 @@ class RoleAndAdminSeeder extends Seeder
      */
     public function run()
     {
-        $adminRole = Role::create(['name' => 'admin']);
-        $clientRole = Role::create(['name' => 'client']);
+        $admin_role = Role::create(['name' => 'admin']);
+        $client_role = Role::create(['name' => 'client']);
 
         $admin = User::create([
             'name' => 'Admin',
@@ -26,6 +26,10 @@ class RoleAndAdminSeeder extends Seeder
             'password' => Hash::make('admin'),
         ]);
 
-        $admin->roles()->attach($adminRole);
+        $admin->roles()->attach($admin_role);
+
+        $token = $admin->createToken('AdminToken')->accessToken;
+
+        $this->command->info("Admin access token: " . $token);
     }
 }
