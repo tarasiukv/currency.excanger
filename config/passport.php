@@ -74,13 +74,13 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Grant Password Client
+    | Password Grant Client
     |--------------------------------------------------------------------------
     */
 
-    'grant_password_client' => [
-        'id' => env('PASSPORT_GRAND_PASSWORD_CLIENT_ID'),
-        'secret' => env('PASSPORT_GRAND_PASSWORD_CLIENT_ID_SECRET'),
+    'password_grant_client' => [
+        'id' => env('PASSPORT_PASSWORD_GRANT_CLIENT_ID'),
+        'secret' => env('PASSPORT_PASSWORD_GRANT_CLIENT_SECRET'),
     ],
 
 ];

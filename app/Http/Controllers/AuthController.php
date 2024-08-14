@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\PasswordRequest;
 use App\Http\Requests\UserRegisterRequest;
 use App\Models\User;
+use App\Repositories\UserRepository;
+use App\Services\AuthService;
 use App\Traits\HandlesOAuthRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,21 +17,27 @@ class AuthController extends Controller
 {
     use HandlesOAuthRequests;
 
+    public $authService;
+    public $userRepository;
+
+    public function __construct(AuthService $authService, UserRepository $userRepository)
+    {
+        $this->authService = $authService;
+        $this->userRepository = $userRepository;
+    }
+
     /**
      * Register user
      *
      * @param UserRegisterRequest $request
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function register(UserRegisterRequest $request)
+    public function register(UserRegisterRequest $request): \Illuminate\Http\JsonResponse
     {
         DB::beginTransaction();
 
         try {
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => bcrypt($request->password),
-            ]);
+            $user = $this->userRepository->create($request);
 
             $response = $this->sendOAuthRequest('password', [
                 'username' => $user->email,
@@ -58,39 +66,14 @@ class AuthController extends Controller
 
             return response()->json(['error' => 'An error occurred during registration.'], 500);
         }
-
-        //try {
-//            DB::beginTransaction();
-//
-//            $user = User::create([
-//                'name' => $request->name,
-//                'email' => $request->email,
-//                'password' => bcrypt($request->password),
-//            ]);
-//
-//            $token = $user->createToken('Personal Access Token')->accessToken;
-//
-//            Log::channel('auth')->info("Register info: User id:{$user->id} created");
-//            DB::commit();
-//
-//            return response()->json(['token' => $token], 200);
-//
-//        } catch (\Exception $e) {
-//            Log::channel('auth')->error("Register error: {$e}");
-//            DB::rollBack();
-//
-//            return response()->json(['error' => 'User not registered'], 500);
-//
-//        }
     }
 
     /**
      * Login user
      *
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function login(Request $request): \Illuminate\Http\JsonResponse
+    public function login(Request $request)
     {
         $credentials = [
             'email' => $request->email,
@@ -124,15 +107,16 @@ class AuthController extends Controller
     /**
      * User personal info
      *
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function personalInfo()
+    public function personalInfo(): \Illuminate\Http\JsonResponse
     {
         try {
             $user = Auth::user();
 
             Log::channel('auth')->info("PersonalInfo info: User id:{$user->id}");
 
-            return $user;
+            return response()->json($user);
         } catch (\Exception $e) {
             Log::channel('auth')->error("PersonalInfo error: {$e}");
 
@@ -140,12 +124,17 @@ class AuthController extends Controller
         }
     }
 
-    public function changePassword(PasswordRequest $request)
+    /**
+     * Change user password
+     *
+     * @param PasswordRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function changePassword(PasswordRequest $request): \Illuminate\Http\JsonResponse
     {
-        dd($request);
-        $user = Auth::user();
-        $user->update($request->all());
-        return $user->refresh();
+        $this->authService->changePassword($request->all());
+
+        return response()->json(['message' => 'Password successfully changed'], 200);
     }
 
     /**
