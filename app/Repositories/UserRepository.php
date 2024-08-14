@@ -2,13 +2,8 @@
 
 namespace App\Repositories;
 
-use App\Http\Resources\ExchangeRateResource;
-use App\Interfaces\ExchangeRateRepositoryInterface;
-use App\Models\ExchangeRate;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
-use PharIo\Version\Exception;
-use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Str;
 
 class UserRepository
 {
@@ -24,6 +19,7 @@ class UserRepository
             'name' => $request->name,
             'email' => $request->email,
             'password' => bcrypt($request->password),
+            'verification_code' => Str::random(6),
         ]);
         return $user;
     }
