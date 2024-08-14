@@ -58,6 +58,18 @@ return [
             'level' => 'debug',
         ],
 
+        'transaction' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/transaction.log'),
+            'level' => 'debug',
+        ],
+
+        'auth' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/auth.log'),
+            'level' => 'debug',
+        ],
+
         'stack' => [
             'driver' => 'stack',
             'channels' => explode(',', env('LOG_STACK', 'single')),
