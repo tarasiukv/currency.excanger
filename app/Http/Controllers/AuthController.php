@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
@@ -50,6 +51,11 @@ class AuthController extends Controller
 
                 return response()->json(['error' => 'User registration failed.'], 500);
             }
+
+            Mail::raw("Your verification code is: {$user->verification_code}", function($message) use ($user) {
+                $message->to($user->email)
+                    ->subject('Email Verification');
+            });
 
             Log::channel('auth')->info("Register info: User id:{$user->id} created.");
             DB::commit();
@@ -124,13 +130,12 @@ class AuthController extends Controller
         }
     }
 
-    public function verify()
+    public function verify(Request $request)
     {
         $request->validate([
             'email' => 'required|email|exists:users,email',
             'verification_code' => 'required|string|min:6|max:6',
         ]);
-
 
         $user = User::where('email', $request->email)->where('verification_code', $request->verification_code)->first();
 
