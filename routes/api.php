@@ -19,9 +19,11 @@ Route::group(['prefix' => 'auth'], function () {
     Route::post('login', [AuthController::class, 'login']);
 
     Route::middleware('auth:api')->group(function () {
-        Route::patch('password', [AuthController::class, 'changePassword']);
+        Route::post('verify', [AuthController::class, 'verify']);
         Route::post('logout', [AuthController::class, 'logout']);
         Route::post('refresh', [AuthController::class, 'refresh']);
+
+        Route::patch('password', [AuthController::class, 'changePassword']);
     });
 });
 

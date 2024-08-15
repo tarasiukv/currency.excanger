@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\PasswordRequest;
 use App\Http\Requests\UserRegisterRequest;
+use App\Jobs\SendVerificationCodeJob;
 use App\Repositories\UserRepository;
 use App\Services\AuthService;
 use App\Traits\HandlesOAuthRequests;
@@ -11,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use MailService;
 
 class AuthController extends Controller
 {
@@ -50,7 +52,9 @@ class AuthController extends Controller
                 return response()->json(['error' => 'User registration failed.'], 500);
             }
 
-            Log::channel('auth')->info("Register: User id:{$user->id} created.");
+            SendVerificationCodeJob::dispatch('tarasiuk.viktor.m@gmail.com', $user->verification_code)->onQueue('mail');
+
+            Log::channel('auth')->info("Register info: User id:{$user->id} created.");
             DB::commit();
 
             return response()->json([
@@ -121,6 +125,34 @@ class AuthController extends Controller
             Log::channel('auth')->error("PersonalInfo: {$e}");
 
             return response()->json(['error' => 'An error occurred while trying to PersonalInfo'], 500);
+        }
+    }
+
+    public function verify(Request $request)
+    {
+        try {
+            $request->validate([
+                'email' => 'required|email|exists:users,email',
+                'verification_code' => 'required|string|min:6|max:6',
+            ]);
+
+            $user = User::where('email', $request->email)->where('verification_code', $request->verification_code)->first();
+
+            if (!$user) {
+                return response()->json(['message' => 'Invalid verification code or email.'], 400);
+            }
+
+            $user->email_verified_at = now();
+            $user->verification_code = null;
+            $user->save();
+
+            Log::channel('auth')->info("Verify: User id:{$user->id} verified");
+
+            return response()->json(['message' => 'Email verified successfully.'], 200);
+        } catch (\Exception $e) {
+            Log::channel('auth')->error("Verify: {$e->getMessage()}");
+
+            return response()->json(['error' => 'An error occurred during verification.'], 500);
         }
     }
 
