@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\PasswordRequest;
 use App\Http\Requests\UserRegisterRequest;
+use App\Jobs\SendVerificationCodeJob;
 use App\Models\User;
 use App\Repositories\UserRepository;
 use App\Services\AuthService;
@@ -12,7 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
+use MailService;
 
 class AuthController extends Controller
 {
