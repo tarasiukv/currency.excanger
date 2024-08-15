@@ -20,7 +20,10 @@ class ExchangeRateRepository implements ExchangeRateRepositoryInterface
     public function index()
     {
         try {
-            return ExchangeRate::with(['fromCurrency', 'toCurrency'])->get();
+            return ExchangeRate::with([
+                'fromCurrency',
+                'toCurrency'
+            ])->get();
 
         } catch (\Exception $e) {
             Log::channel('exchangeRate')->error("ExchangeRate Index: {$e->getMessage()}");
