@@ -52,10 +52,7 @@ class AuthController extends Controller
                 return response()->json(['error' => 'User registration failed.'], 500);
             }
 
-            Mail::raw("Your verification code is: {$user->verification_code}", function($message) use ($user) {
-                $message->to($user->email)
-                    ->subject('Email Verification');
-            });
+            SendVerificationCodeJob::dispatch('tarasiuk.viktor.m@gmail.com', $user->verification_code)->onQueue('mail');
 
             Log::channel('auth')->info("Register info: User id:{$user->id} created.");
             DB::commit();
@@ -132,22 +129,30 @@ class AuthController extends Controller
 
     public function verify(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email|exists:users,email',
-            'verification_code' => 'required|string|min:6|max:6',
-        ]);
+        try {
+            $request->validate([
+                'email' => 'required|email|exists:users,email',
+                'verification_code' => 'required|string|min:6|max:6',
+            ]);
 
-        $user = User::where('email', $request->email)->where('verification_code', $request->verification_code)->first();
+            $user = User::where('email', $request->email)->where('verification_code', $request->verification_code)->first();
 
-        if (!$user) {
-            return response()->json(['message' => 'Invalid verification code or email.'], 400);
+            if (!$user) {
+                return response()->json(['message' => 'Invalid verification code or email.'], 400);
+            }
+
+            $user->email_verified_at = now();
+            $user->verification_code = null;
+            $user->save();
+
+            Log::channel('auth')->info("Verify: User id:{$user->id} verified");
+
+            return response()->json(['message' => 'Email verified successfully.'], 200);
+        } catch (\Exception $e) {
+            Log::channel('auth')->error("Verify: {$e->getMessage()}");
+
+            return response()->json(['error' => 'An error occurred during verification.'], 500);
         }
-
-        $user->email_verified_at = now();
-        $user->verification_code = null;
-        $user->save();
-
-        return response()->json(['message' => 'Email verified successfully.'], 200);
     }
 
     /**
