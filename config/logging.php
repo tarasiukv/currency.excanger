@@ -76,6 +76,12 @@ return [
             'level' => 'debug',
         ],
 
+        'exchange-rate' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/exchange-rate.log'),
+            'level' => 'debug',
+        ],
+
         'stack' => [
             'driver' => 'stack',
             'channels' => explode(',', env('LOG_STACK', 'single')),

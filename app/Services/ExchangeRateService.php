@@ -19,17 +19,28 @@ class ExchangeRateService
         $this->exchangeRateRepository = $exchangeRateRepository;
     }
 
+    /**
+     * @param string $code
+     * @return mixed
+     */
     public function findByCode(string $code)
     {
         return Currency::where('code', strtoupper($code))->first();
     }
 
+    /**
+     * @return array
+     */
     public function getApiUrl()
     {
         $exchangeRateService = InstanceService::getInstance();
         return $exchangeRateService->getApiUrls();
     }
 
+    /**
+     * @return mixed
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
     protected function getJSONData()
     {
         $api_urls = $this->getApiUrl();
@@ -40,6 +51,10 @@ class ExchangeRateService
         return json_decode($response->getBody(), true);
     }
 
+    /**
+     * @return \Illuminate\Http\JsonResponse|void
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
     public function getExchangeRates()
     {
         $data = $this->getJSONData();
