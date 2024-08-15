@@ -37,11 +37,8 @@ Route::group(['prefix' => 'auth'], function () {
     });
 
     // Transactions
-    Route::post('/transactions', [TransactionController::class, 'store']);
-    Route::middleware('role:admin')->group(function () {
-        Route::get('/transactions', [TransactionController::class, 'index']);
-    });
-    Route::middleware('role:client')->group(function () {
-//        Route::get('/my-transactions', [TransactionController::class, 'index']);
+    Route::prefix('transactions')->group(function () {
+        Route::get('/', [TransactionController::class, 'index']);
+        Route::post('/', [TransactionController::class, 'store']);
     });
 });
