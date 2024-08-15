@@ -29,7 +29,7 @@ class ExchangeRateController extends Controller
             $model = $this->exchangeRateRepository->index();
             return response()->json($model);
         } catch (\Exception $e) {
-            Log::error("ExchangeRate Index: {$e->getMessage()}");
+            Log::channel('exchangeRate')->error("ExchangeRate Index: {$e->getMessage()}");
             return response()->json(['error' => 'Failed to retrieve exchange rates'], 500);
         }
     }
@@ -47,7 +47,7 @@ class ExchangeRateController extends Controller
             $this->exchangeRateRepository->update($request->all());
             return new ExchangeRateResource($exchange_rate);
         } catch (\Exception $e) {
-            Log::channel('exchange-rate')->error("ExchangeRate Update: {$e->getMessage()}");
+            Log::channel('exchangeRate')->error("ExchangeRate Update: {$e->getMessage()}");
             return response()->json(['error' => 'Failed to update exchange rate'], 500);
         }
     }
@@ -61,7 +61,7 @@ class ExchangeRateController extends Controller
             $this->exchangeRateService->getExchangeRates();
             return response()->json(['message' => 'Exchange rates received and updated successfully']);
         } catch (\Exception $e) {
-            Log::channel('exchange-rate')->error("ExchangeRate Fetch: {$e->getMessage()}");
+            Log::channel('exchangeRate')->error("ExchangeRate Fetch: {$e->getMessage()}");
             return response()->json(['error' => 'Failed to fetch and update exchange rates'], 500);
         }
     }
