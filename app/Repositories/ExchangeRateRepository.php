@@ -6,6 +6,7 @@ use App\Http\Resources\ExchangeRateResource;
 use App\Interfaces\ExchangeRateRepositoryInterface;
 use App\Models\ExchangeRate;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use PharIo\Version\Exception;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -14,14 +15,17 @@ class ExchangeRateRepository implements ExchangeRateRepositoryInterface
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Http\JsonResponse
      */
     public function index()
     {
-        return ExchangeRate::with([
-            'fromCurrency',
-            'toCurrency',
-        ])->get();
+        try {
+            return ExchangeRate::with(['fromCurrency', 'toCurrency'])->get();
+
+        } catch (\Exception $e) {
+            Log::channel('exchange-rate')->error("ExchangeRate Index: {$e->getMessage()}");
+            return response()->json(['error' => 'An error occurred while retrieving exchange rates.'], 500);
+        }
     }
 
     /**
@@ -32,18 +36,17 @@ class ExchangeRateRepository implements ExchangeRateRepositoryInterface
      */
     public function show(ExchangeRate $exchange_rate)
     {
-        if (!$exchange_rate) {
-            return response()->json(['message' => 'There is no exchange rate'], 404);
-        }
-        if (!$exchange_rate->exists) {
-            return response()->json(['error' => 'Exchange rate empty'], 404);
+        try {
+            if (!$exchange_rate || !$exchange_rate->exists) {
+                return response()->json(['error' => 'Exchange rate not found'], 404);
+            }
+            $exchange_rate->load(['fromCurrency', 'toCurrency']);
+            return new ExchangeRateResource($exchange_rate);
 
+        } catch (\Exception $e) {
+            Log::channel('exchange-rate')->error("ExchangeRate Show: {$e->getMessage()}");
+            return response()->json(['error' => 'An error occurred while retrieving the exchange rate.'], 500);
         }
-        $exchange_rate->load([
-            'fromCurrency',
-            'toCurrency',
-        ]);
-        return new ExchangeRateResource($exchange_rate);
     }
 
     /**
@@ -68,9 +71,11 @@ class ExchangeRateRepository implements ExchangeRateRepositoryInterface
 
             $exchange_rate->save();
             DB::commit();
+            Log::channel('exchange-rate')->info("ExchangeRate Update: Successfully updated exchange rate.");
 
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             DB::rollBack();
+            Log::channel('exchange-rate')->error("ExchangeRate Update: {$e->getMessage()}");
         }
     }
 
@@ -78,12 +83,18 @@ class ExchangeRateRepository implements ExchangeRateRepositoryInterface
      * Remove the specified resource from storage.
      *
      * @param ExchangeRate $exchange_rate
-     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      */
     public function destroy(ExchangeRate $exchange_rate)
     {
-        $exchange_rate->delete();
+        try {
+            $exchange_rate->delete();
+            Log::channel('exchange-rate')->info("ExchangeRate Destroy: Successfully deleted exchange rate.");
+            return response(null, Response::HTTP_NO_CONTENT);
 
-        return response(null, Response::HTTP_NO_CONTENT);
+        } catch (\Exception $e) {
+            Log::channel('exchange-rate')->error("ExchangeRate Destroy: {$e->getMessage()}");
+            return response()->json(['error' => 'An error occurred while deleting the exchange rate.'], 500);
+        }
     }
 }
