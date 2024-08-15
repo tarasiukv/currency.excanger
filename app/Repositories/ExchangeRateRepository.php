@@ -23,7 +23,7 @@ class ExchangeRateRepository implements ExchangeRateRepositoryInterface
             return ExchangeRate::with(['fromCurrency', 'toCurrency'])->get();
 
         } catch (\Exception $e) {
-            Log::channel('exchange-rate')->error("ExchangeRate Index: {$e->getMessage()}");
+            Log::channel('exchangeRate')->error("ExchangeRate Index: {$e->getMessage()}");
             return response()->json(['error' => 'An error occurred while retrieving exchange rates.'], 500);
         }
     }
@@ -44,7 +44,7 @@ class ExchangeRateRepository implements ExchangeRateRepositoryInterface
             return new ExchangeRateResource($exchange_rate);
 
         } catch (\Exception $e) {
-            Log::channel('exchange-rate')->error("ExchangeRate Show: {$e->getMessage()}");
+            Log::channel('exchangeRate')->error("ExchangeRate Show: {$e->getMessage()}");
             return response()->json(['error' => 'An error occurred while retrieving the exchange rate.'], 500);
         }
     }
@@ -71,11 +71,11 @@ class ExchangeRateRepository implements ExchangeRateRepositoryInterface
 
             $exchange_rate->save();
             DB::commit();
-            Log::channel('exchange-rate')->info("ExchangeRate Update: Successfully updated exchange rate.");
+            Log::channel('exchangeRate')->info("ExchangeRate Update: Successfully updated exchange rate.");
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::channel('exchange-rate')->error("ExchangeRate Update: {$e->getMessage()}");
+            Log::channel('exchangeRate')->error("ExchangeRate Update: {$e->getMessage()}");
         }
     }
 
@@ -89,11 +89,11 @@ class ExchangeRateRepository implements ExchangeRateRepositoryInterface
     {
         try {
             $exchange_rate->delete();
-            Log::channel('exchange-rate')->info("ExchangeRate Destroy: Successfully deleted exchange rate.");
+            Log::channel('exchangeRate')->info("ExchangeRate Destroy: Successfully deleted exchange rate.");
             return response(null, Response::HTTP_NO_CONTENT);
 
         } catch (\Exception $e) {
-            Log::channel('exchange-rate')->error("ExchangeRate Destroy: {$e->getMessage()}");
+            Log::channel('exchangeRate')->error("ExchangeRate Destroy: {$e->getMessage()}");
             return response()->json(['error' => 'An error occurred while deleting the exchange rate.'], 500);
         }
     }
