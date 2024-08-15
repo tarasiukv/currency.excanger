@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\PasswordRequest;
 use App\Http\Requests\UserRegisterRequest;
 use App\Jobs\SendVerificationCodeJob;
-use App\Models\User;
 use App\Repositories\UserRepository;
 use App\Services\AuthService;
 use App\Traits\HandlesOAuthRequests;
@@ -47,7 +46,7 @@ class AuthController extends Controller
             ]);
 
             if (!$response->successful()) {
-                Log::channel('auth')->error("Register error: {$response->json()}");
+                Log::channel('auth')->error("Register: {$response->json()}");
                 DB::rollBack();
 
                 return response()->json(['error' => 'User registration failed.'], 500);
@@ -65,7 +64,7 @@ class AuthController extends Controller
 
         } catch (\Exception $e) {
 
-            Log::channel('auth')->error("Register error: {$e->getMessage()}");
+            Log::channel('auth')->error("Register: {$e->getMessage()}");
             DB::rollBack();
 
             return response()->json(['error' => 'An error occurred during registration.'], 500);
@@ -76,6 +75,7 @@ class AuthController extends Controller
      * Login user
      *
      * @param Request $request
+     * @return array|\Illuminate\Http\JsonResponse|mixed
      */
     public function login(Request $request)
     {
@@ -93,16 +93,16 @@ class AuthController extends Controller
                     'password' => $request->password,
                 ]);
 
-                Log::channel('auth')->info("Login info: User id:{$user->id} logged in");
+                Log::channel('auth')->info("Login: User id:{$user->id} logged in");
 
                 return $response->json();
             } else {
-                Log::channel('auth')->warning("Login warning: Failed login attempt for email:{$request->email}");
+                Log::channel('auth')->warning("Login: Failed login attempt for email:{$request->email}");
 
                 return response()->json(['error' => 'Unauthorized'], 401);
             }
         } catch (\Exception $e) {
-            Log::channel('auth')->error("Login error: {$e}");
+            Log::channel('auth')->error("Login: {$e}");
 
             return response()->json(['error' => 'An error occurred while trying to log in'], 500);
         }
@@ -118,11 +118,11 @@ class AuthController extends Controller
         try {
             $user = Auth::user();
 
-            Log::channel('auth')->info("PersonalInfo info: User id:{$user->id}");
+            Log::channel('auth')->info("PersonalInfo: User id:{$user->id}");
 
             return response()->json($user);
         } catch (\Exception $e) {
-            Log::channel('auth')->error("PersonalInfo error: {$e}");
+            Log::channel('auth')->error("PersonalInfo: {$e}");
 
             return response()->json(['error' => 'An error occurred while trying to PersonalInfo'], 500);
         }
@@ -164,9 +164,17 @@ class AuthController extends Controller
      */
     public function changePassword(PasswordRequest $request): \Illuminate\Http\JsonResponse
     {
-        $this->authService->changePassword($request->all());
+        try {
+            $this->authService->changePassword($request->all());
 
-        return response()->json(['message' => 'Password successfully changed'], 200);
+            Log::channel('auth')->info("ChangePassword: User id:" . Auth::id() . " password changed");
+
+            return response()->json(['message' => 'Password successfully changed'], 200);
+        } catch (\Exception $e) {
+            Log::channel('auth')->error("ChangePassword: {$e->getMessage()}");
+
+            return response()->json(['error' => 'An error occurred while changing the password.'], 500);
+        }
     }
 
     /**
@@ -180,19 +188,19 @@ class AuthController extends Controller
             $user = Auth::user();
 
             if ($user && $user->token()) {
-
                 $user->token()->revoke();
 
-                Log::channel('auth')->info("Logout info: User id:{$user->id} logged out");
+                Log::channel('auth')->info("Logout: User id:{$user->id} logged out");
 
                 return response()->json(['message' => 'Successfully logged out'], 200);
+
             } else {
-                Log::channel('auth')->warning("Logout warning: Attempt to logout without valid token");
+                Log::channel('auth')->warning("Logout: Attempt to logout without valid token");
 
                 return response()->json(['error' => 'No valid token found'], 400);
             }
         } catch (\Exception $e) {
-            Log::channel('auth')->error("Logout error: {$e}");
+            Log::channel('auth')->error("Logout: {$e}");
 
             return response()->json(['error' => 'An error occurred while trying to log out'], 500);
         }
