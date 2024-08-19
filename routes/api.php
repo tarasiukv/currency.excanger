@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
-})->middleware('auth:sanctum');
+})->middleware('auth:api');
 
 // Exchange rate
 Route::get('exchange-rates', [ExchangeRateController::class, 'index']);
