@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Interfaces\ExchangeRateRepositoryInterface;
 use App\Repositories\ExchangeRateRepository;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Passport\Passport;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,6 +22,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Passport::enablePasswordGrant();
     }
 }
