@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use Exception;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -23,12 +24,23 @@ trait HandlesOAuthRequests
             'scope' => '*',
         ], $credentials);
 
-        $response = Http::asForm()->post('http://currency.exchanger.local.com/oauth/token', $data);
+        try {
+            $response = Http::asForm()->post('http://currency.exchanger.local.com/oauth/token', $data);
 
-        if (!$response->successful()) {
-            Log::channel('auth')->error("OAuth request error: {$response->json()}");
+            if (!$response->successful()) {
+                Log::channel('auth')->error("OAuth request error: ", [
+                    'status' => $response->status(),
+                    'response' => $response->json()
+                ]);
+            }
+
+            return $response;
+        } catch (Exception $e) {
+            Log::channel('auth')->error("Exception during OAuth request: {$e->getMessage()}", [
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return null;
         }
-
-        return $response;
     }
 }
