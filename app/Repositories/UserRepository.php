@@ -3,6 +3,8 @@
 namespace App\Repositories;
 
 use App\Models\User;
+use Exception;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class UserRepository
@@ -15,13 +17,22 @@ class UserRepository
      */
     public function create($request)
     {
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($request->password),
-            'verification_code' => Str::random(6),
-        ]);
-        return $user;
+        try {
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => bcrypt($request->password),
+                'verification_code' => Str::random(6),
+            ]);
+
+            Log::channel('auth')->info('Create: User created: ' . $user->email);
+
+            return $user;
+        } catch (Exception $e) {
+            Log::channel('auth')->error('Create: ' . $e->getMessage());
+
+            throw new Exception('An unexpected error occurred while creating the user.');
+        }
     }
 
     /**
@@ -33,10 +44,16 @@ class UserRepository
      */
     public function changePassword($user_id, $new_password)
     {
-        $user = User::findOrFail($user_id);
-        $user->password = $new_password;
-        $user->save();
+        try {
+            $user = User::findOrFail($user_id);
+            $user->password = bcrypt($new_password);
+            $user->save();
 
-        return $user;
+            return $user;
+        } catch (Exception $e) {
+            Log::error('Exception: ' . $e->getMessage());
+
+            throw new Exception('An unexpected error occurred while changing the password.');
+        }
     }
 }

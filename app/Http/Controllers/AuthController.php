@@ -35,10 +35,16 @@ class AuthController extends Controller
      */
     public function register(UserRegisterRequest $request): \Illuminate\Http\JsonResponse
     {
-        DB::beginTransaction();
 
         try {
             $user = $this->userRepository->create($request);
+
+            if (!$user) {
+                Log::channel('auth')->error('Register: User creation failed.');
+                return response()->json(['error' => 'User registration failed.'], 500);
+            }
+
+            DB::beginTransaction();
 
             $response = $this->sendOAuthRequest('password', [
                 'username' => $user->email,
@@ -54,7 +60,7 @@ class AuthController extends Controller
 
             SendVerificationCodeJob::dispatch('tarasiuk.viktor.m@gmail.com', $user->verification_code)->onQueue('mail');
 
-            Log::channel('auth')->info("Register info: User id:{$user->id} created.");
+            Log::channel('auth')->info("Register: User id:{$user->id} created.");
             DB::commit();
 
             return response()->json([
@@ -63,9 +69,7 @@ class AuthController extends Controller
             ], 201);
 
         } catch (\Exception $e) {
-
             Log::channel('auth')->error("Register: {$e->getMessage()}");
-            DB::rollBack();
 
             return response()->json(['error' => 'An error occurred during registration.'], 500);
         }
