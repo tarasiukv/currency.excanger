@@ -5,8 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\TransactionRequest;
 use App\Models\Transaction;
 use App\Repositories\TransactionRepository;
-use App\Services\TransactionService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Symfony\Component\HttpFoundation\Response;
 
 class TransactionController extends Controller
@@ -24,8 +25,15 @@ class TransactionController extends Controller
      */
     public function index()
     {
-        $model = $this->transactionRepository->index();
-        return response()->json($model);
+        $user = Auth::user();
+
+        if (Gate::allows('viewAny', Transaction::class)) {
+            $transactions = Transaction::all();
+        } else {
+            $transactions = Transaction::where('user_id', $user->id)->get();
+        }
+
+        return response()->json($transactions);
     }
 
     /**
@@ -34,17 +42,19 @@ class TransactionController extends Controller
      */
     public function show(Transaction $transaction)
     {
-        if (!$transaction) {
-            return response()->json(['message' => 'Продукту немає'], 404);
-        }
         if (!$transaction->exists) {
-            return response()->json(['error' => 'Продукт пустий'], 404);
-
+            return response()->json(['error' => 'Transaction does not exist'], 404);
         }
+
+        if (!Gate::allows('view', $transaction)) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
         $transaction->load([
             'fromCurrency',
             'toCurrency',
         ]);
+
         return new TransactionResource($transaction);
     }
 
@@ -107,19 +117,10 @@ class TransactionController extends Controller
 //        try {
 //            $search_text = $request['search_text'];
 //            $category_ids = $request['category_ids'];
-//            $packaging_ids = $request['packaging_ids'];
-//            $consistence_ids = $request['consistence_ids'];
-//            $producing_country_ids = $request['producing_country_ids'];
-//            $manufacturer_ids = $request['manufacturer_ids'];
-//            $min_price = $request['min_price'];
 //            $max_price = $request['max_price'];
 //
 //            $transactions = Transaction::search($search_text)
 //                ->filterByPrice($min_price, $max_price)
-//                ->filterByCategory($category_ids)
-//                ->filterByPackaging($packaging_ids)
-//                ->filterByConsistence($consistence_ids)
-//                ->filterByCountry($producing_country_ids)
 //                ->filterByManufacturer($manufacturer_ids)
 //                ->with([''])
 //                ->get();
