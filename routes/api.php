@@ -3,12 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ExchangeRateController;
 use App\Http\Controllers\TransactionController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:api');
 
 // Exchange rate
 Route::get('exchange-rates', [ExchangeRateController::class, 'index']);
@@ -27,8 +22,8 @@ Route::group(['prefix' => 'auth'], function () {
         Route::post('logout', [AuthController::class, 'logout']);
         Route::post('refresh', [AuthController::class, 'refresh']);
         Route::patch('password', [AuthController::class, 'changePassword']);
-        Route::get('personal-info', [AuthController::class, 'personalInfo']);
-
+        Route::get('me', [AuthController::class, 'me']);
+    });
 
         // Exchange rates
         Route::prefix('exchange-rates')->group(function () {
