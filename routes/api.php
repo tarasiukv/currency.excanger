@@ -6,16 +6,30 @@ use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 
 // Exchange rate
-Route::get('exchange-rates', [ExchangeRateController::class, 'index']);
+Route::get('/exchange-rates', [ExchangeRateController::class, 'index']);
+Route::middleware('auth:api')->group(function () {
+    Route::post('/exchange-rates/update', [ExchangeRateController::class, 'update']);
+    Route::get('/exchange-rates/fetch', [ExchangeRateController::class, 'fetch']);
+});
+
+// Transactions
+Route::middleware('auth:api')->group(function () {
+    Route::get('transactions', [TransactionController::class, 'index']);
+    Route::get('transactions/{transaction}', [TransactionController::class, 'show']);
+    Route::post('transactions', [TransactionController::class, 'store']);
+    Route::put('transactions/{transaction}', [TransactionController::class, 'update']);
+    Route::delete('transactions/{transaction}', [TransactionController::class, 'destroy']);
+    Route::post('transactions/search', [TransactionController::class, 'search']);
+});
+
+// Profile
+Route::post('register', [AuthController::class, 'register']);
+Route::post('login', [AuthController::class, 'login']);
 
 /**
  * Auth prefix group
  */
 Route::group(['prefix' => 'auth'], function () {
-
-    // Profile
-    Route::post('register', [AuthController::class, 'register']);
-    Route::post('login', [AuthController::class, 'login']);
 
     Route::middleware('auth:api')->group(function () {
         Route::post('verify', [AuthController::class, 'verify']);
@@ -23,22 +37,5 @@ Route::group(['prefix' => 'auth'], function () {
         Route::post('refresh', [AuthController::class, 'refresh']);
         Route::patch('password', [AuthController::class, 'changePassword']);
         Route::get('me', [AuthController::class, 'me']);
-    });
-
-        // Exchange rates
-        Route::prefix('exchange-rates')->group(function () {
-            Route::post('/update', [ExchangeRateController::class, 'update']);
-            Route::get('/fetch', [ExchangeRateController::class, 'fetch']);
-        });
-
-        // Transactions
-        Route::prefix('transactions')->group(function () {
-            Route::get('/', [TransactionController::class, 'index']);
-            Route::get('/{transaction}', [TransactionController::class, 'show']);
-            Route::post('/', [TransactionController::class, 'store']);
-            Route::put('/{transaction}', [TransactionController::class, 'update']);
-            Route::delete('/{transaction}', [TransactionController::class, 'destroy']);
-            Route::post('/search', [TransactionController::class, 'search']);
-        });
     });
 });
