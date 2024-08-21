@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\PasswordRequest;
 use App\Http\Requests\UserRegisterRequest;
 use App\Jobs\SendVerificationCodeJob;
+use App\Models\User;
 use App\Repositories\UserRepository;
 use App\Services\AuthService;
 use App\Traits\HandlesOAuthRequests;
@@ -117,7 +118,7 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function personalInfo(): \Illuminate\Http\JsonResponse
+    public function me(): \Illuminate\Http\JsonResponse
     {
         try {
             $user = Auth::user();
