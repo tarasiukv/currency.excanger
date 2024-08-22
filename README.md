@@ -9,7 +9,16 @@
 
 Content:
 
+- **[Instalation](#instalation)**
 - **[Commands](#commands)**
+
+## Instalation
+
+Run migrate: `php artisan migrate`
+
+Install passport: `php artisan passport:install`
+
+Add id and secret key to .env: `PASSPORT`
 
 ## Commands
 
