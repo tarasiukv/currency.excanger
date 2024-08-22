@@ -16,7 +16,8 @@ class TransactionResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'user_id' => $this->users_id,
+            'user_id' => $this->user_id,
+            'user' => new UserResource($this->whenLoaded('user')),
             'from_currency_id' => $this->from_currency_id,
             'from_currency' => new CurrencyResource($this->whenLoaded('fromCurrency')),
             'to_currency_id' => $this->to_currency_id,

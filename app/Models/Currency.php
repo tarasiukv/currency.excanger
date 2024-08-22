@@ -27,13 +27,8 @@ class Currency extends Model
         return $this->hasMany(ExchangeRate::class, 'to_currency_id');
     }
 
-    public function transactionsFrom()
+    public function transactions()
     {
-        return $this->hasMany(Transaction::class, 'from_currency_id');
-    }
-
-    public function transactionsTo()
-    {
-        return $this->hasMany(Transaction::class, 'to_currency_id');
+        return $this->hasMany(Transaction::class);
     }
 }
