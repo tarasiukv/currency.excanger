@@ -133,6 +133,11 @@ class AuthController extends Controller
         }
     }
 
+    /**
+     * Verify user email
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function verify(Request $request)
     {
         try {
