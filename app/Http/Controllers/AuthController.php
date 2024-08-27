@@ -100,7 +100,15 @@ class AuthController extends Controller
 
                 Log::channel('auth')->info("Login: User id:{$user->id} logged in");
 
-                return $response->json();
+                return response()->json([
+                    'access_token' => $response->json()['access_token'],
+                    'refresh_token' => $response->json()['refresh_token'],
+                    'user' => [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'role' => $user->getPrimaryRole(),
+                    ]
+                ]);
             } else {
                 Log::channel('auth')->warning("Login: Failed login attempt for email:{$request->email}");
 

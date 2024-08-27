@@ -58,6 +58,12 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class);
     }
 
+    //temporary
+    public function getPrimaryRole()
+    {
+        return $this->roles()->first()->name ?? null;
+    }
+
     public function transactions()
     {
         return $this->hasMany(Transaction::class);
