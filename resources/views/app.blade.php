@@ -9,7 +9,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ $title ?? 'CurEx' }}</title>
-    @vite('resources/css/app.css')
+    @vite('resources/sass/app.scss')
 
     {{-- -- Google Font -- --}}
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
