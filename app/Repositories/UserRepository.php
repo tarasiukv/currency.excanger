@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Models\Role;
 use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\Log;
@@ -24,6 +25,13 @@ class UserRepository
                 'password' => bcrypt($request->password),
                 'verification_code' => Str::random(6),
             ]);
+
+            $role = Role::find($request->user_role_id);
+            if ($role) {
+                $user->roles()->attach($role);
+            } else {
+                throw new \Exception('Role not found.');
+            }
 
             Log::channel('auth')->info('Create: User created: ' . $user->email);
 

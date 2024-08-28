@@ -36,7 +36,6 @@ class AuthController extends Controller
      */
     public function register(UserRegisterRequest $request): \Illuminate\Http\JsonResponse
     {
-
         try {
             $user = $this->userRepository->create($request);
 
@@ -65,9 +64,13 @@ class AuthController extends Controller
             DB::commit();
 
             return response()->json([
-                'user' => $user,
-                'token' => $response->json()
-            ], 201);
+                'access_token' => $response->json(),
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'role' => $user->getPrimaryRole(),
+                ]
+            ]);
 
         } catch (\Exception $e) {
             Log::channel('auth')->error("Register: {$e->getMessage()}");
