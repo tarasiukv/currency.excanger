@@ -1,8 +1,5 @@
 <script setup>
-import {provide} from 'vue';
-import store from '@store/store.js';
 
-provide('store', store);
 </script>
 
 <template>
