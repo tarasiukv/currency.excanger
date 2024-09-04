@@ -68,6 +68,8 @@ export default function useAuth() {
                     role: data.user?.role
                 });
 
+                console.log(store)
+
                 await router.push('/dashboard')
             } catch (e) {
                 console.log('!!!Some error in login', e)
@@ -116,6 +118,7 @@ export default function useAuth() {
             store.state.is_logged_in = false;
         }
     };
+
 
     function parseToken(token) {
         try {
