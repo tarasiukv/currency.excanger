@@ -11,6 +11,7 @@ Content:
 
 - **[Instalation](#instalation)**
 - **[Commands](#commands)**
+- **[Credentials](#credentials)**
 
 ## Instalation
 
@@ -27,3 +28,12 @@ Run serve: `php artisan serve`
 Run echo server: `laravel-echo-server start`
 
 Run queue: `php artisan queue:work`
+
+Run seed: `php artisan db:seed`
+
+
+## Credentials
+
+Login: `admin@mail.com`
+Password: `admin`
+
