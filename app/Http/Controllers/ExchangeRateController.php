@@ -7,7 +7,7 @@ use App\Interfaces\ExchangeRateRepositoryInterface;
 use App\Models\ExchangeRate;
 use App\Services\ExchangeRateService;
 use Illuminate\Support\Facades\Log;
-use Symfony\Component\HttpFoundation\Request;
+use Illuminate\Http\Request;
 
 class ExchangeRateController extends Controller
 {
@@ -64,5 +64,26 @@ class ExchangeRateController extends Controller
             Log::channel('exchangeRate')->error("ExchangeRate Fetch: {$e->getMessage()}");
             return response()->json(['error' => 'Failed to fetch and update exchange rates'], 500);
         }
+    }
+
+    /**
+     * Search for exchange rates based on from_currency_id and to_currency_id.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function search(Request $request)
+    {
+        $request->validate([
+            'from_currency_id' => 'required|integer',
+            'to_currency_id' => 'required|integer',
+        ]);
+
+        $exchangeRates = ExchangeRate::searchByCurrencies(
+            $request->from_currency_id,
+            $request->to_currency_id
+        )->get();
+
+        return response()->json($exchangeRates);
     }
 }

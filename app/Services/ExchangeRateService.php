@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Http\Requests\ExchangeRateRequest;
 use App\Interfaces\ExchangeRateRepositoryInterface;
 use App\Models\Currency;
+use App\Models\ExchangeRate;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -98,5 +99,53 @@ class ExchangeRateService
                 continue;
             }
         }
+
+        $this->generateCurrencyPairs();
     }
+
+    /**
+     * Generating new currency pairs
+     *
+     * @return void
+     */
+    private function generateCurrencyPairs()
+    {
+        $currencies = Currency::all();
+
+        foreach ($currencies as $from_currency) {
+            foreach ($currencies as $to_currency) {
+                if ($from_currency->id === $to_currency->id) {
+                    continue;
+                }
+
+                $existingRate = ExchangeRate::where('from_currency_id', $from_currency->id)
+                    ->where('to_currency_id', $to_currency->id)
+                    ->first();
+
+                if (!$existingRate) {
+                    $rateFromToBase = ExchangeRate::where('from_currency_id', $from_currency->id)
+                        ->where('to_currency_id', 1)
+                        ->first();
+
+                    $rateToToBase = ExchangeRate::where('from_currency_id', $to_currency->id)
+                        ->where('to_currency_id', 1)
+                        ->first();
+
+                    if ($rateFromToBase && $rateToToBase) {
+                        $newRate = $rateToToBase->rate / $rateFromToBase->rate;
+
+                        ExchangeRate::create([
+                            'from_currency_id' => $from_currency->id,
+                            'to_currency_id' => $to_currency->id,
+                            'rate' => $newRate,
+                            'date' => now(),
+                        ]);
+
+                        Log::channel('exchangeRate')->info("Generated new exchange rate: from_currency_id={$from_currency->id}, to_currency_id={$to_currency->id}, rate={$newRate}");
+                    }
+                }
+            }
+        }
+    }
+
 }
