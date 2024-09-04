@@ -1,10 +1,12 @@
 <script setup>
 import useAuth from '@composables/auth.js';
+import HeaderComponent from "@components/features/HeaderComponent.vue";
 
 const { email, password, login } = useAuth();
 </script>
 
 <template>
+    <HeaderComponent />
     <div class="container">
         <h2>Login</h2>
         <form @submit.prevent="login">
