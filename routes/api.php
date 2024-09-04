@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 
 // Exchange rate
 Route::get('exchange-rates', [ExchangeRateController::class, 'index']);
+Route::post('exchange-rates/search', [ExchangeRateController::class, 'search']);
 Route::middleware('auth:api')->group(function () {
     Route::post('exchange-rates/update', [ExchangeRateController::class, 'update']);
     Route::get('exchange-rates/fetch', [ExchangeRateController::class, 'fetch']);
