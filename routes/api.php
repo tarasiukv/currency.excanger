@@ -1,15 +1,25 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\ExchangeRateController;
 use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 
 // Exchange rate
-Route::get('/exchange-rates', [ExchangeRateController::class, 'index']);
+Route::get('exchange-rates', [ExchangeRateController::class, 'index']);
 Route::middleware('auth:api')->group(function () {
-    Route::post('/exchange-rates/update', [ExchangeRateController::class, 'update']);
-    Route::get('/exchange-rates/fetch', [ExchangeRateController::class, 'fetch']);
+    Route::post('exchange-rates/update', [ExchangeRateController::class, 'update']);
+    Route::get('exchange-rates/fetch', [ExchangeRateController::class, 'fetch']);
+});
+
+// COUNTRY
+Route::get('currencies', [CurrencyController::class, 'index']);
+Route::get('currencies/{currency}', [CurrencyController::class, 'show']);
+// for admin
+Route::group(['middleware' => ['auth', 'role:admin']], function ($router) {
+    Route::post('currencies', [CurrencyController::class, 'store']);
+    Route::delete('currencies/{currency}', [CurrencyController::class, 'destroy']);
 });
 
 // Transactions
